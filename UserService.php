@@ -201,10 +201,10 @@ class UserService{
             return prepareApiResponse($validator->errors()->first(),Response::HTTP_BAD_REQUEST);
         }
 
-        // $credentials = checkForEmailOrMobile($data['username'],$data['password']);
+     
         $user = User::whereEmail($data['email'])->first();
 
-        // if(Auth::attempt($credentials)){
+       
 
             UserOtp::where([["otp",$data['otp']],["user_id",$user->id]])->delete();
             $user->email_verified_at = date("Y-m-d H:i:s");
@@ -216,8 +216,7 @@ class UserService{
 
 
             return prepareApiResponse(trans("messages.userLoginSuccess"),$this->success,$user);
-        // }
-        // return prepareApiResponse(trans("messages.invalidCredentials"),$this->failure);
+        
     }
     public function userLogout(){
         if(Auth::check()){
@@ -289,7 +288,7 @@ class UserService{
 
     public function addUser($data)
     {
-      // toall($data);
+     
       $user = new User;
       if($data->hasFile('profile_pic')){
         $file_path = uploadFiles($data['profile_pic'],'document','public/doctor/business_infooo',1);;
@@ -480,7 +479,7 @@ class UserService{
         return prepareApiResponse($response->errors()->first(), $this->failure); //error
     }
     try{
-        Mail::to("sahildhawan74@gmail.com")->send(new ContactUs($data));
+        Mail::to(config("constants.personal_email"))->send(new ContactUs($data));
         return prepareApiResponse(trans("messages.contactSuccess"), $this->success);
     }catch(Exception $e){
         return prepareApiResponse($e->getMessage(), $this->failure);
@@ -506,8 +505,6 @@ class UserService{
     $influencers = Influencer::all();
 
     $area_with_treatments = Treatment::with("treatments")->where("type",'1')->get();
-
-    // pr(DB::getQueryLog());
     $data['influencers'] = $influencers;
     $data['area'] = $area_with_treatments;
     return prepareApiResponse(trans("messages.dashboard"),$this->success,$data);
@@ -662,7 +659,6 @@ public function getAreaWithCategory($request){
     $categoriesByArea = Area::with(['category'=>function($q){
         $q->distinct();
     }])->select("id")->whereIn('id',$request->area)->get()->filter(function($value,$key){
-        // echo "<pre>";print_r($value);
         foreach($value['category'] as $key=>$val){
             $val->area_id = $value->id;
         }
