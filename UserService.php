@@ -201,10 +201,9 @@ class UserService{
             return prepareApiResponse($validator->errors()->first(),Response::HTTP_BAD_REQUEST);
         }
 
-     
+
         $user = User::whereEmail($data['email'])->first();
 
-       
 
             UserOtp::where([["otp",$data['otp']],["user_id",$user->id]])->delete();
             $user->email_verified_at = date("Y-m-d H:i:s");
@@ -216,7 +215,7 @@ class UserService{
 
 
             return prepareApiResponse(trans("messages.userLoginSuccess"),$this->success,$user);
-        
+
     }
     public function userLogout(){
         if(Auth::check()){
@@ -288,7 +287,6 @@ class UserService{
 
     public function addUser($data)
     {
-     
       $user = new User;
       if($data->hasFile('profile_pic')){
         $file_path = uploadFiles($data['profile_pic'],'document','public/doctor/business_infooo',1);;
@@ -298,7 +296,6 @@ class UserService{
       $user->name = $data->name ?? null;
       $user->email = $data->email ?? null;
       $user->password = bcrypt($data->password);
-      // Hash::make($data['password'])
       if($data['user_type'] =='Doctor'){
         $user->assignRole('Doctor'); // assign role
       }else if($data['user_type'] =='Patient'){
@@ -505,6 +502,7 @@ class UserService{
     $influencers = Influencer::all();
 
     $area_with_treatments = Treatment::with("treatments")->where("type",'1')->get();
+
     $data['influencers'] = $influencers;
     $data['area'] = $area_with_treatments;
     return prepareApiResponse(trans("messages.dashboard"),$this->success,$data);
@@ -659,6 +657,7 @@ public function getAreaWithCategory($request){
     $categoriesByArea = Area::with(['category'=>function($q){
         $q->distinct();
     }])->select("id")->whereIn('id',$request->area)->get()->filter(function($value,$key){
+
         foreach($value['category'] as $key=>$val){
             $val->area_id = $value->id;
         }
@@ -836,7 +835,6 @@ public function getAllTreatmentsBySubCategory($request){
                         $q->where("treatment_relations.sub_category_id", $request->subcategory_id);
                     }
                 })
-                // ->orderBy($orderBy, $sort)
                 ->groupBy("treatment_relations.id")
                 ->paginate();
 
